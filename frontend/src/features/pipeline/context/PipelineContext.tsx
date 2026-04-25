@@ -44,10 +44,10 @@ const INITIAL_STATE: PipelineState = {
 };
 
 export const STAGE_GROUPS: StageGroup[] = [
-  { id: "discovery", label: "Discovery", icon: "DISC", color: T.primary, steps: [1, 2, 3] },
-  { id: "analysis", label: "Analysis", icon: "ANAL", color: T.violet, steps: [4, 5, 6] },
-  { id: "decision", label: "Decision", icon: "DECN", color: T.warning, steps: [7, 8, 9] },
-  { id: "feedback", label: "Feedback", icon: "AUDT", color: T.teal, steps: [10] },
+  { id: "discovery", label: "Discovery", icon: "Discovery", color: T.primary, steps: [1, 2, 3] },
+  { id: "analysis", label: "Analysis", icon: "Analysis", color: T.violet, steps: [4, 5, 6] },
+  { id: "decision", label: "Decision", icon: "Decision", color: T.warning, steps: [7, 8, 9] },
+  { id: "feedback", label: "Feedback", icon: "Feedback", color: T.teal, steps: [10] },
 ];
 
 interface PipelineContextValue {
