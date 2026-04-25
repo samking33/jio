@@ -1,0 +1,103 @@
+.status-bar {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 18px;
+  background: rgba(5, 8, 15, 0.96);
+  border-bottom: 1px solid rgba(32, 178, 170, 0.1);
+  backdrop-filter: blur(16px);
+  flex-shrink: 0;
+  gap: 16px;
+}
+
+/* Gradient hairline at top of bar */
+.status-bar::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(32, 178, 170, 0.7) 25%,
+    rgba(108, 59, 255, 0.7) 60%,
+    rgba(32, 178, 170, 0.4) 85%,
+    transparent 100%
+  );
+}
+
+.status-bar__brand {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  color: #20b2aa;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.status-bar__active-app {
+  font-size: 10px;
+  color: rgba(226, 232, 240, 0.35);
+  flex: 1;
+  text-align: center;
+  letter-spacing: 0.07em;
+}
+
+.status-bar__right {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.status-bar__backend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  color: rgba(226, 232, 240, 0.28);
+  text-transform: uppercase;
+}
+
+.status-bar__backend-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(226, 232, 240, 0.15);
+  transition: all 0.3s ease;
+}
+
+.status-bar__backend--online .status-bar__backend-dot {
+  background: #20b2aa;
+  box-shadow: 0 0 0 2px rgba(32, 178, 170, 0.2), 0 0 8px rgba(32, 178, 170, 0.6);
+}
+.status-bar__backend--online { color: rgba(32, 178, 170, 0.65); }
+
+.status-bar__backend--offline .status-bar__backend-dot { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.5); }
+.status-bar__backend--offline { color: rgba(239, 68, 68, 0.55); }
+
+.status-bar__backend--checking .status-bar__backend-dot {
+  background: #f59e0b;
+  animation: sb-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes sb-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 5px rgba(245,158,11,0.6); }
+  50%       { opacity: 0.35; box-shadow: none; }
+}
+
+.status-bar__date {
+  font-size: 9px;
+  color: rgba(226, 232, 240, 0.28);
+  letter-spacing: 0.07em;
+}
+
+.status-bar__time {
+  font-size: 10px;
+  color: rgba(226, 232, 240, 0.55);
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+}

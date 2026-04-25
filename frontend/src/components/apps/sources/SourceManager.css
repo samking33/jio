@@ -1,0 +1,239 @@
+/* SourceManager — teal-branded source configuration panel */
+
+.source-mgr {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f8f9fc;
+  font-family: 'DM Sans', 'Inter', sans-serif;
+}
+
+/* ── App header ──────────────────────────────────────────────────────────── */
+
+.source-mgr__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 18px;
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #134e4a 100%);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.source-mgr__header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(20,184,166,0.6), rgba(108,59,255,0.4), transparent);
+}
+
+.source-mgr__header span { font-size: 20px; flex-shrink: 0; }
+.source-mgr__title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.01em;
+}
+.source-mgr__sub { font-size: 9px; color: rgba(255,255,255,0.45); }
+
+/* ── Scrollable body ─────────────────────────────────────────────────────── */
+
+.source-mgr__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 12px;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(13,148,136,0.15) transparent;
+}
+.source-mgr__body::-webkit-scrollbar       { width: 4px; }
+.source-mgr__body::-webkit-scrollbar-thumb { background: rgba(13,148,136,0.2); border-radius: 2px; }
+
+/* ── Add source form ─────────────────────────────────────────────────────── */
+
+.source-mgr__add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 14px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e4e9f2;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  position: relative;
+  overflow: hidden;
+}
+.source-mgr__add-form::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #0d9488, #14b8a6);
+  border-radius: 3px 0 0 3px;
+}
+
+.source-mgr__form-title {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-left: 8px;
+}
+
+.source-mgr__input {
+  padding: 8px 10px;
+  border: 1.5px solid #e4e9f2;
+  border-radius: 7px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #0f172a;
+  outline: none;
+  background: #f8f9fc;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.source-mgr__input:focus {
+  border-color: #14b8a6;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(20,184,166,0.1);
+}
+.source-mgr__input::placeholder { color: #b8c4d6; }
+
+.source-mgr__add-btn {
+  padding: 8px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #0d9488, #14b8a6);
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: 0.03em;
+  box-shadow: 0 3px 10px rgba(13,148,136,0.25);
+  transition: all 0.15s ease;
+}
+.source-mgr__add-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(13,148,136,0.35);
+}
+.source-mgr__add-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── Section label ───────────────────────────────────────────────────────── */
+
+.source-mgr__list-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding: 0 2px;
+}
+
+/* ── Source item list ────────────────────────────────────────────────────── */
+
+.source-mgr__list { display: flex; flex-direction: column; gap: 6px; }
+
+.source-mgr__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border-radius: 9px;
+  border: 1px solid #e4e9f2;
+  transition: all 0.15s ease;
+}
+.source-mgr__item:hover {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  border-color: #cdd5e0;
+  transform: translateX(1px);
+}
+.source-mgr__item--inactive { opacity: 0.52; }
+
+/* Status dot */
+.source-mgr__dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #e4e9f2;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+.source-mgr__dot.active {
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.15);
+}
+
+/* Item text */
+.source-mgr__item-body { flex: 1; min-width: 0; }
+.source-mgr__item-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.source-mgr__item-url {
+  font-size: 9.5px;
+  color: #94a3b8;
+  font-family: 'DM Mono', monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+
+/* Action buttons */
+.source-mgr__item-actions { display: flex; gap: 5px; flex-shrink: 0; }
+
+.source-mgr__action-btn {
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #f1f4f9;
+  border: 1px solid #e4e9f2;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  letter-spacing: 0.02em;
+}
+.source-mgr__action-btn:hover { background: #e4e9f2; color: #334155; }
+.source-mgr__action-btn--danger:hover {
+  background: #ffe4e6;
+  color: #e11d48;
+  border-color: rgba(225,29,72,0.2);
+}
+
+/* ── Feedback message ────────────────────────────────────────────────────── */
+
+.source-mgr__feedback {
+  padding: 9px 11px;
+  border-radius: 7px;
+  font-size: 11px;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+  line-height: 1.4;
+}
+.source-mgr__feedback--error {
+  border-style: solid;
+  border-color: rgba(239,68,68,0.25);
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 760px) {
+  .source-mgr__body { padding: 10px 9px; }
+  .source-mgr__item { padding: 9px 10px; }
+  .source-mgr__item-actions { flex-direction: column; gap: 4px; }
+  .source-mgr__action-btn { width: 52px; padding: 3px 0; text-align: center; }
+}

@@ -1,0 +1,369 @@
+/* RfpAnalysisPage.css — all classes prefixed rfp-ana__ */
+
+.rfp-ana {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 32px 56px;
+}
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+
+.rfp-ana__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  gap: 16px;
+}
+
+.rfp-ana__title {
+  font-family: var(--rfp-font-syne);
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--rfp-text-primary);
+}
+
+.rfp-ana__sub {
+  font-size: 0.875rem;
+  color: var(--rfp-text-secondary);
+  margin-top: 5px;
+  line-height: 1.4;
+}
+
+.rfp-ana__header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* ── Capability chart card ───────────────────────────────────────────────── */
+
+.rfp-ana__chart-card {
+  background: var(--rfp-white);
+  border: 1px solid var(--rfp-border);
+  border-radius: var(--rfp-r-lg);
+  box-shadow: var(--rfp-shadow-sm);
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+
+.rfp-ana__chart-title {
+  font-family: var(--rfp-font-display);
+  font-weight: 700;
+  font-size: 0.88rem;
+  margin-bottom: 22px;
+  color: var(--rfp-text-primary);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rfp-text-tertiary);
+}
+
+.rfp-ana__bars { display: flex; flex-direction: column; gap: 12px; }
+
+.rfp-ana__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.rfp-ana__bar-label {
+  width: 95px;
+  font-size: 0.78rem;
+  color: var(--rfp-text-secondary);
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.rfp-ana__bar-track {
+  flex: 1;
+  height: 7px;
+  background: var(--rfp-surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.rfp-ana__bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--rfp-grad-violet);
+  transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rfp-ana__bar-val {
+  width: 38px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--rfp-text-primary);
+  text-align: right;
+  flex-shrink: 0;
+  font-family: var(--rfp-font-syne);
+}
+
+/* ── Accordion list ──────────────────────────────────────────────────────── */
+
+.rfp-ana__list { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── Individual analysis card ────────────────────────────────────────────── */
+
+.rfp-ana__card {
+  background: var(--rfp-white);
+  border: 1px solid var(--rfp-border);
+  border-radius: var(--rfp-r-lg);
+  box-shadow: var(--rfp-shadow-sm);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.rfp-ana__card:hover { border-color: var(--rfp-border-mid); }
+.rfp-ana__card.expanded {
+  box-shadow: var(--rfp-shadow-md);
+  border-color: rgba(108,59,255,0.15);
+}
+
+.rfp-ana__card-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  gap: 16px;
+  transition: background 0.15s;
+}
+.rfp-ana__card-header:hover { background: var(--rfp-surface); }
+.rfp-ana__card.expanded .rfp-ana__card-header {
+  border-bottom: 1px solid var(--rfp-border);
+}
+
+.rfp-ana__card-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+}
+
+/* Score circle */
+.rfp-ana__card-score {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+}
+
+.rfp-ana__score-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--rfp-font-syne);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.rfp-ana__card-title {
+  font-size: 0.96rem;
+  font-weight: 600;
+  margin-bottom: 7px;
+  color: var(--rfp-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.rfp-ana__card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rfp-ana__card-tasks {
+  font-size: 0.75rem;
+  color: var(--rfp-text-tertiary);
+}
+
+.rfp-ana__card-chevron {
+  color: var(--rfp-text-tertiary);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+}
+.rfp-ana__card-chevron.open {
+  transform: rotate(180deg);
+  color: var(--rfp-violet);
+}
+
+/* ── Expanded body ───────────────────────────────────────────────────────── */
+
+.rfp-ana__card-body {
+  padding: 0 22px 22px;
+}
+
+.rfp-ana__card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 22px;
+}
+
+.rfp-ana__section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--rfp-text-tertiary);
+  margin-bottom: 14px;
+}
+
+/* ── Skill bars ──────────────────────────────────────────────────────────── */
+
+.rfp-ana__skill-list { display: flex; flex-direction: column; gap: 9px; }
+
+.rfp-ana__skill-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rfp-ana__skill-name {
+  width: 120px;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  color: var(--rfp-text-primary);
+  font-weight: 500;
+}
+
+.rfp-ana__skill-bar {
+  flex: 1;
+  height: 5px;
+  background: var(--rfp-surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rfp-ana__skill-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--rfp-grad-teal);
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rfp-ana__skill-val {
+  font-size: 0.75rem;
+  font-weight: 700;
+  width: 34px;
+  text-align: right;
+  color: var(--rfp-text-secondary);
+  flex-shrink: 0;
+  font-family: var(--rfp-font-syne);
+}
+
+/* ── Risk items ──────────────────────────────────────────────────────────── */
+
+.rfp-ana__risks { display: flex; flex-direction: column; gap: 8px; }
+
+.rfp-ana__risk {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 13px;
+  border-radius: var(--rfp-r-sm);
+  font-size: 0.78rem;
+  border: 1px solid transparent;
+}
+.rfp-ana__risk--success {
+  background: var(--rfp-green-pale);
+  border-color: rgba(5,150,105,0.15);
+}
+.rfp-ana__risk--warning {
+  background: var(--rfp-amber-pale);
+  border-color: rgba(217,119,6,0.15);
+}
+.rfp-ana__risk--danger {
+  background: var(--rfp-red-light);
+  border-color: rgba(239,68,68,0.15);
+}
+
+.rfp-ana__risk-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.rfp-ana__risk--success .rfp-ana__risk-icon { background: var(--rfp-green); color: white; }
+.rfp-ana__risk--warning .rfp-ana__risk-icon { background: var(--rfp-amber); color: white; }
+.rfp-ana__risk--danger  .rfp-ana__risk-icon { background: var(--rfp-red);   color: white; }
+
+.rfp-ana__risk-level { font-weight: 600; margin-bottom: 2px; color: var(--rfp-text-primary); }
+.rfp-ana__risk-desc  { opacity: 0.85; color: var(--rfp-text-secondary); line-height: 1.4; }
+
+/* ── Task list ───────────────────────────────────────────────────────────── */
+
+.rfp-ana__tasks {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.rfp-ana__task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.81rem;
+  color: var(--rfp-text-primary);
+  line-height: 1.4;
+}
+
+.rfp-ana__task-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--rfp-teal);
+  flex-shrink: 0;
+}
+
+/* ── Certs / badges ──────────────────────────────────────────────────────── */
+
+.rfp-ana__certs { display: flex; flex-wrap: wrap; gap: 7px; }
+
+/* ── Loading ─────────────────────────────────────────────────────────────── */
+
+.rfp-ana__loading {
+  text-align: center;
+  padding: 52px 24px;
+  color: var(--rfp-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.875rem;
+  border: 1.5px dashed var(--rfp-border);
+  border-radius: var(--rfp-r-lg);
+  background: var(--rfp-surface);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .rfp-ana { padding: 28px 18px 40px; }
+  .rfp-ana__header { flex-direction: column; align-items: stretch; }
+  .rfp-ana__header-actions { width: 100%; }
+  .rfp-ana__card-grid { grid-template-columns: 1fr; gap: 18px; }
+}
+
+@media (max-width: 560px) {
+  .rfp-ana__card-header { padding: 14px 16px; }
+  .rfp-ana__card-left { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .rfp-ana__card-body { padding: 0 16px 16px; }
+  .rfp-ana__skill-name { width: 85px; font-size: 0.73rem; }
+}

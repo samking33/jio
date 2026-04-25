@@ -1,0 +1,136 @@
+/* RfpPipelineNav — horizontal stage stepper */
+
+.rfp-pnav {
+  background: var(--rfp-white);
+  border-bottom: 1px solid var(--rfp-border);
+  padding: 20px 0 32px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(15, 22, 41, 0.04);
+}
+
+.rfp-pnav__inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.rfp-pnav__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.rfp-pnav__title {
+  font-family: var(--rfp-font-syne);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--rfp-text-primary);
+}
+
+.rfp-pnav__sub {
+  font-size: 0.78rem;
+  color: var(--rfp-text-tertiary);
+  margin-top: 3px;
+  letter-spacing: 0.01em;
+}
+
+/* ── Stage track ──────────────────────────────────────────────────────────── */
+
+.rfp-pnav__stages {
+  display: flex;
+  align-items: center;
+}
+
+.rfp-pnav__stage-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Circle step */
+.rfp-pnav__circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--rfp-border);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--rfp-white);
+  color: var(--rfp-text-tertiary);
+  font-family: var(--rfp-font-display);
+}
+
+.rfp-pnav__circle:hover {
+  border-color: var(--rfp-violet-mid);
+  color: var(--rfp-violet);
+  transform: scale(1.05);
+}
+
+.rfp-pnav__circle.active {
+  background: var(--rfp-grad-violet);
+  border-color: transparent;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: var(--rfp-shadow-violet), 0 0 0 4px var(--rfp-violet-glow);
+}
+
+.rfp-pnav__circle.completed {
+  background: var(--rfp-green);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 2px 10px rgba(5, 150, 105, 0.3);
+}
+
+/* Label */
+.rfp-pnav__label {
+  margin-top: 9px;
+  font-size: 0.73rem;
+  font-weight: 500;
+  color: var(--rfp-text-tertiary);
+  white-space: nowrap;
+  position: absolute;
+  top: 42px;
+  letter-spacing: 0.01em;
+  transition: color 0.2s ease;
+}
+
+.rfp-pnav__label.active {
+  color: var(--rfp-violet);
+  font-weight: 700;
+}
+
+.rfp-pnav__label.completed {
+  color: var(--rfp-green);
+}
+
+/* Connector line */
+.rfp-pnav__connector {
+  flex: 1;
+  height: 2px;
+  background: var(--rfp-border);
+  margin: 0 12px;
+  margin-bottom: 10px;
+  position: relative;
+  border-radius: 1px;
+  overflow: visible;
+}
+
+.rfp-pnav__connector-fill {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--rfp-green), var(--rfp-teal-mid));
+  border-radius: 1px;
+  transform-origin: left;
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}

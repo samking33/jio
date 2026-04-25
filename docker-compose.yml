@@ -1,0 +1,32 @@
+version: "3.9"
+
+# ── Default config uses Aiven Cloud PostgreSQL (no local db container needed).
+# ── To run with a local PostgreSQL instead, use:
+#      docker compose -f docker-compose.yml -f docker-compose.local-db.yml up --build
+
+services:
+
+  # ── Flask API ─────────────────────────────────────────────────────────────────
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    # Reads DB_HOST, DB_PORT, etc. from backend/.env when present,
+    # then any values set here override them.
+    env_file:
+      - ./backend/.env
+    environment:
+      FLASK_DEBUG: "false"
+
+  # ── React SPA (nginx) ─────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: http://localhost:5000
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend

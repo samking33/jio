@@ -1,0 +1,166 @@
+/* ── Dock ─────────────────────────────────────────────────────────────────── */
+
+.dock {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 10px 24px 14px;
+  flex-shrink: 0;
+
+  background: rgba(8, 12, 18, 0.72);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+}
+
+/* Inner pill track — like macOS dock */
+.dock__track {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 10px 18px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ── Slot: wraps button + dot ─────────────────────────────────────────────── */
+
+.dock__slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Button ───────────────────────────────────────────────────────────────── */
+
+.dock__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 0.18s ease;
+  outline: none;
+}
+
+.dock__item:focus-visible {
+  box-shadow: 0 0 0 2px rgba(32, 178, 170, 0.6);
+}
+
+/* Hover — magnify + lift */
+.dock__item--hovered {
+  transform: translateY(-10px) scale(1.28);
+  filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.55));
+  z-index: 10;
+}
+
+/* Active window — subtle ring glow */
+.dock__item--active .dock__icon-wrap {
+  box-shadow:
+    0 0 0 2px rgba(32, 178, 170, 0.5),
+    0 4px 16px rgba(32, 178, 170, 0.25);
+}
+
+/* ── Icon wrapper ─────────────────────────────────────────────────────────── */
+
+.dock__icon-wrap {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  overflow: hidden;
+  display: block;
+  transition: box-shadow 0.18s ease;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.dock__icon-wrap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Glass gloss reflection on top half of icon */
+.dock__gloss {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  pointer-events: none;
+  background: linear-gradient(
+    170deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 45%,
+    transparent 50%
+  );
+}
+
+/* ── Tooltip ──────────────────────────────────────────────────────────────── */
+
+.dock__tooltip {
+  position: absolute;
+  bottom: calc(100% + 18px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  padding: 4px 10px;
+  background: rgba(15, 20, 30, 0.92);
+  color: rgba(226, 232, 240, 0.95);
+  font-family: 'DM Mono', 'Fira Code', monospace;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.dock__tooltip--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Running indicator dot ────────────────────────────────────────────────── */
+
+.dock__dot {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(226, 232, 240, 0.45);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.dock__dot--active {
+  background: #20b2aa;
+  box-shadow:
+    0 0 6px rgba(32, 178, 170, 0.8),
+    0 0 12px rgba(32, 178, 170, 0.4);
+  animation: dot-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(32, 178, 170, 0.8), 0 0 12px rgba(32, 178, 170, 0.4); }
+  50%       { box-shadow: 0 0 10px rgba(32, 178, 170, 1),  0 0 20px rgba(32, 178, 170, 0.6); }
+}
