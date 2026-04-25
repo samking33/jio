@@ -1,46 +1,46 @@
 import React from "react";
 import { useWindows } from "../../context/WindowContext";
 import { getApp } from "../../store/appRegistry";
+import { useLiveMetrics } from "../../hooks/useLiveMetrics";
 import "./RightSidebar.css";
-
-const INVITES = [
-  { id: "i1", title: "BRD Review Sync", time: "09:30 AM", status: "Today" },
-  { id: "i2", title: "RFP Qualification Standup", time: "11:00 AM", status: "Today" },
-  { id: "i3", title: "Client Discovery Call", time: "01:15 PM", status: "Today" },
-  { id: "i4", title: "Bid Strategy Review", time: "04:00 PM", status: "Today" },
-  { id: "i5", title: "Leadership Townhall", time: "Tomorrow 10:00 AM", status: "Upcoming" },
-];
 
 export default function RightSidebar() {
   const { openWindow } = useWindows();
-  const meetingApp = getApp("meeting");
+  const { metrics, loading } = useLiveMetrics();
+  const rfpApp = getApp("rfp-dashboard");
+  const audit = metrics.latest_audit_logs || [];
 
-  const onJoin = () => {
-    if (!meetingApp) return;
-    openWindow(meetingApp.id, meetingApp.label, { size: meetingApp.defaultSize });
+  const openRfpDashboard = () => {
+    if (!rfpApp) return;
+    openWindow(rfpApp.id, rfpApp.label, { size: rfpApp.defaultSize });
   };
 
   return (
-    <aside className="right-sidebar" aria-label="Meeting Invitations">
+    <aside className="right-sidebar" aria-label="Live Operations Feed">
       <header className="right-sidebar__head">
-        <h3>Meeting Invitations</h3>
-        <p>Notifications & Upcoming Calls</p>
+        <h3>Operations Feed</h3>
+        <p>Latest audit events from PostgreSQL</p>
       </header>
 
       <div className="right-sidebar__list">
-        {INVITES.map((invite) => (
-          <article key={invite.id} className="meeting-invite">
+        {loading && <div className="right-sidebar__empty">Loading live feed...</div>}
+        {!loading && audit.length === 0 && (
+          <div className="right-sidebar__empty">No audit events yet.</div>
+        )}
+
+        {audit.map((item) => (
+          <article key={item.log_id} className="meeting-invite">
             <div className="meeting-invite__top">
-              <span className="meeting-invite__status">{invite.status}</span>
-              <span className="meeting-invite__time">{invite.time}</span>
+              <span className="meeting-invite__status">{item.action_type || "event"}</span>
+              <span className="meeting-invite__time">
+                {item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
+              </span>
             </div>
-            <h4>{invite.title}</h4>
+            <h4>{item.action_detail || `RFP ${item.rfp_id}`}</h4>
             <div className="meeting-invite__actions">
-              <button type="button" className="meeting-invite__btn meeting-invite__btn--join" onClick={onJoin}>
-                Join
+              <button type="button" className="meeting-invite__btn meeting-invite__btn--join" onClick={openRfpDashboard}>
+                Open RFPs
               </button>
-              <button type="button" className="meeting-invite__btn">Accept</button>
-              <button type="button" className="meeting-invite__btn">Decline</button>
             </div>
           </article>
         ))}
@@ -48,4 +48,3 @@ export default function RightSidebar() {
     </aside>
   );
 }
-

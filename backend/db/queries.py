@@ -1,4 +1,6 @@
 import json
+from datetime import date, datetime
+from decimal import Decimal
 import psycopg2
 import psycopg2.extras
 from db.connection import get_connection
@@ -710,3 +712,253 @@ def delete_source(source_id: int) -> bool:
     except psycopg2.Error as e:
         print(f"[DB] delete_source error: {e}")
         return False
+
+
+# ─── Pipeline Runs ───────────────────────────────────────────────────────────
+
+def create_pipeline_run(status: str = "pending", current_step_id: int = 1):
+    query = """
+        INSERT INTO pipeline_runs (status, current_step_id)
+        VALUES (%s, %s)
+        RETURNING run_id, status, current_step_id, started_at, completed_at, error_message;
+    """
+    try:
+        conn = get_connection()
+        with conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(query, (status, current_step_id))
+                row = cur.fetchone()
+        conn.close()
+        return dict(row) if row else None
+    except psycopg2.Error as e:
+        print(f"[DB] create_pipeline_run error: {e}")
+        return None
+
+
+def update_pipeline_run(run_id: int, status: str = None, current_step_id: int = None,
+                        completed_at: str = None, error_message: str = None) -> bool:
+    fields = []
+    params = []
+
+    if status is not None:
+        fields.append("status = %s")
+        params.append(status)
+    if current_step_id is not None:
+        fields.append("current_step_id = %s")
+        params.append(current_step_id)
+    if completed_at is not None:
+        fields.append("completed_at = %s")
+        params.append(completed_at)
+    if error_message is not None:
+        fields.append("error_message = %s")
+        params.append(error_message)
+
+    if not fields:
+        return False
+
+    params.append(run_id)
+    query = f"""
+        UPDATE pipeline_runs
+        SET {", ".join(fields)}
+        WHERE run_id = %s;
+    """
+    try:
+        conn = get_connection()
+        with conn:
+            with conn.cursor() as cur:
+                cur.execute(query, tuple(params))
+        conn.close()
+        return True
+    except psycopg2.Error as e:
+        print(f"[DB] update_pipeline_run error: {e}")
+        return False
+
+
+def get_pipeline_run(run_id: int):
+    query = """
+        SELECT run_id, status, current_step_id, started_at, completed_at, error_message
+        FROM pipeline_runs
+        WHERE run_id = %s;
+    """
+    try:
+        conn = get_connection()
+        with conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(query, (run_id,))
+                row = cur.fetchone()
+        conn.close()
+        return dict(row) if row else None
+    except psycopg2.Error as e:
+        print(f"[DB] get_pipeline_run error: {e}")
+        return None
+
+
+def get_latest_pipeline_run():
+    query = """
+        SELECT run_id, status, current_step_id, started_at, completed_at, error_message
+        FROM pipeline_runs
+        ORDER BY started_at DESC, run_id DESC
+        LIMIT 1;
+    """
+    try:
+        conn = get_connection()
+        with conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(query)
+                row = cur.fetchone()
+        conn.close()
+        return dict(row) if row else None
+    except psycopg2.Error as e:
+        print(f"[DB] get_latest_pipeline_run error: {e}")
+        return None
+
+
+def upsert_pipeline_step_run(run_id: int, step_id: int, step_key: str, status: str,
+                             message: str = None, error_message: str = None, payload=None,
+                             duration_ms: int = None, completed_at: str = None):
+    query = """
+        INSERT INTO pipeline_step_runs (
+            run_id, step_id, step_key, status, message, error_message,
+            payload, duration_ms, completed_at
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ON CONFLICT (run_id, step_id)
+        DO UPDATE SET
+            status = EXCLUDED.status,
+            message = EXCLUDED.message,
+            error_message = EXCLUDED.error_message,
+            payload = EXCLUDED.payload,
+            duration_ms = EXCLUDED.duration_ms,
+            completed_at = EXCLUDED.completed_at
+        RETURNING step_run_id, run_id, step_id, step_key, status, message,
+                  error_message, payload, started_at, completed_at, duration_ms;
+    """
+    wrapped_payload = psycopg2.extras.Json(payload) if payload is not None else None
+    try:
+        conn = get_connection()
+        with conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(
+                    query,
+                    (
+                        run_id, step_id, step_key, status, message, error_message,
+                        wrapped_payload, duration_ms, completed_at,
+                    ),
+                )
+                row = cur.fetchone()
+        conn.close()
+        return dict(row) if row else None
+    except psycopg2.Error as e:
+        print(f"[DB] upsert_pipeline_step_run error: {e}")
+        return None
+
+
+def get_pipeline_step_runs(run_id: int):
+    query = """
+        SELECT step_run_id, run_id, step_id, step_key, status, message,
+               error_message, payload, started_at, completed_at, duration_ms
+        FROM pipeline_step_runs
+        WHERE run_id = %s
+        ORDER BY step_id ASC;
+    """
+    try:
+        conn = get_connection()
+        with conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(query, (run_id,))
+                rows = cur.fetchall()
+        conn.close()
+        return [dict(row) for row in rows]
+    except psycopg2.Error as e:
+        print(f"[DB] get_pipeline_step_runs error: {e}")
+        return []
+
+
+# ─── Platform Metrics ───────────────────────────────────────────────────────
+
+def _metrics_json_safe(value):
+    if isinstance(value, Decimal):
+        return float(value)
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, list):
+        return [_metrics_json_safe(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _metrics_json_safe(item) for key, item in value.items()}
+    return value
+
+def get_platform_metrics():
+    """
+    Returns live dashboard metrics computed from persisted PostgreSQL state.
+    No display numbers are synthesized here; missing data returns zero/null.
+    """
+    query = """
+        SELECT
+            (SELECT COUNT(*) FROM source_urls) AS sources_total,
+            (SELECT COUNT(*) FROM source_urls WHERE active_flag IS DISTINCT FROM FALSE) AS sources_active,
+            (SELECT COUNT(*) FROM rfp_listings) AS rfps_total,
+            (SELECT COUNT(*) FROM rfp_listings WHERE status IN ('detected','passed_filter','downloaded','extracted')) AS rfps_active,
+            (SELECT COUNT(*) FROM rfp_listings WHERE status = 'approved') AS rfps_approved,
+            (SELECT COUNT(*) FROM rfp_listings WHERE status IN ('rejected','discarded')) AS rfps_rejected,
+            (SELECT COALESCE(SUM(contract_value), 0) FROM rfp_listings WHERE contract_value IS NOT NULL) AS contract_value_total,
+            (SELECT COUNT(*) FROM crawl_runs) AS crawl_runs_total,
+            (SELECT COALESCE(SUM(listings_detected), 0) FROM crawl_runs) AS listings_detected_total,
+            (SELECT COALESCE(SUM(passed_count), 0) FROM crawl_runs) AS listings_passed_total,
+            (SELECT COALESCE(SUM(discarded_count), 0) FROM crawl_runs) AS listings_discarded_total,
+            (SELECT COUNT(*) FROM crawl_runs WHERE status = 'failed') AS crawl_errors_total,
+            (SELECT COUNT(*) FROM tasks) AS tasks_total,
+            (SELECT COUNT(*) FROM skills) AS skills_total,
+            (SELECT COUNT(*) FROM certifications) AS certifications_total,
+            (SELECT COUNT(*) FROM certifications WHERE confidence_score IS NULL OR confidence_score < 0.75) AS certifications_flagged,
+            (SELECT COUNT(*) FROM risk_register) AS risks_total,
+            (SELECT COUNT(*) FROM risk_register WHERE LOWER(severity) = 'high') AS risks_high,
+            (SELECT COUNT(*) FROM hil_reviews) AS reviews_total,
+            (SELECT COUNT(*) FROM hil_reviews WHERE review_status IN ('approve','approved')) AS reviews_approved,
+            (SELECT COUNT(*) FROM hil_reviews WHERE review_status IN ('reject','rejected')) AS reviews_rejected,
+            (SELECT COUNT(*) FROM audit_logs) AS audit_logs_total,
+            (SELECT AVG(confidence_score) FROM tasks WHERE confidence_score IS NOT NULL) AS avg_task_confidence;
+    """
+    latest_rfps_query = """
+        SELECT rfp_id, title, industry, listing_url, status, detected_at, contract_value, submission_deadline
+        FROM rfp_listings
+        ORDER BY detected_at DESC, rfp_id DESC
+        LIMIT 8;
+    """
+    latest_audit_query = """
+        SELECT log_id, rfp_id, action_type, action_detail, timestamp
+        FROM audit_logs
+        ORDER BY timestamp DESC, log_id DESC
+        LIMIT 8;
+    """
+    latest_runs_query = """
+        SELECT crawl_runs.crawl_id, crawl_runs.source_id, source_urls.source_name, source_urls.url,
+               crawl_runs.started_at, crawl_runs.ended_at, crawl_runs.listings_detected,
+               crawl_runs.passed_count, crawl_runs.discarded_count, crawl_runs.status,
+               crawl_runs.error_message
+        FROM crawl_runs
+        LEFT JOIN source_urls ON source_urls.source_id = crawl_runs.source_id
+        ORDER BY crawl_runs.started_at DESC, crawl_runs.crawl_id DESC
+        LIMIT 8;
+    """
+    try:
+        conn = get_connection()
+        with conn:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(query)
+                metrics = dict(cur.fetchone() or {})
+                cur.execute(latest_rfps_query)
+                latest_rfps = [dict(row) for row in cur.fetchall()]
+                cur.execute(latest_audit_query)
+                latest_audit = [dict(row) for row in cur.fetchall()]
+                cur.execute(latest_runs_query)
+                latest_crawls = [dict(row) for row in cur.fetchall()]
+        conn.close()
+        return _metrics_json_safe({
+            **metrics,
+            "latest_rfps": latest_rfps,
+            "latest_audit_logs": latest_audit,
+            "latest_crawl_runs": latest_crawls,
+        })
+    except psycopg2.Error as e:
+        print(f"[DB] get_platform_metrics error: {e}")
+        return {}

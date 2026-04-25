@@ -1,99 +1,22 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
+import { RefreshCw, X } from "lucide-react";
 import { useWindows } from "../../../context/WindowContext";
-import MeetingGrid from "./MeetingGrid";
-import MeetingControls from "./MeetingControls";
+import { useLiveMetrics } from "../../../hooks/useLiveMetrics";
 import "./TeamsApp.css";
-
-const INITIAL_PARTICIPANTS = [
-  { id: "olivia", name: "Olivia", initial: "O", muted: false, isYou: false },
-  { id: "devon", name: "Devon", initial: "D", muted: true, isYou: false },
-  { id: "ian", name: "Ian", initial: "I", muted: false, isYou: false },
-  { id: "you", name: "You", initial: "Y", muted: false, isYou: true },
-];
-
-const SIDEBAR_ITEMS = [
-  { id: "activity", label: "Activity", glyph: "A" },
-  { id: "chat", label: "Chat", glyph: "C" },
-  { id: "teams", label: "Teams", glyph: "T" },
-  { id: "calendar", label: "Calendar", glyph: "K" },
-];
-
-function formatTime(totalSeconds) {
-  const mins = Math.floor(totalSeconds / 60);
-  const secs = totalSeconds % 60;
-  return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-}
 
 export default function TeamsApp() {
   const { windows, closeWindow } = useWindows();
-
-  const [elapsedSeconds, setElapsedSeconds] = useState(751); // 12:31
-  const [micOn, setMicOn] = useState(true);
-  const [cameraOn, setCameraOn] = useState(true);
-  const [screenShared, setScreenShared] = useState(false);
-  const [participants, setParticipants] = useState(INITIAL_PARTICIPANTS);
-  const [activeSpeakerId, setActiveSpeakerId] = useState("olivia");
+  const { metrics, derived, loading, refresh } = useLiveMetrics();
 
   const meetingWindowId = useMemo(() => {
     const win = windows.find((item) => item.appId === "meeting");
     return win?.id ?? null;
   }, [windows]);
 
-  useEffect(() => {
-    const timerId = window.setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1);
-    }, 1000);
+  const latestRfps = metrics.latest_rfps || [];
+  const latestAudit = metrics.latest_audit_logs || [];
 
-    return () => {
-      window.clearInterval(timerId);
-    };
-  }, []);
-
-  useEffect(() => {
-    const cycle = window.setInterval(() => {
-      setActiveSpeakerId((prev) => {
-        const ids = participants.filter((p) => !p.isYou).map((p) => p.id);
-        const currentIndex = ids.indexOf(prev);
-        if (currentIndex === -1) {
-          return ids[0] ?? "you";
-        }
-        return ids[(currentIndex + 1) % ids.length] ?? "you";
-      });
-    }, 3200);
-
-    return () => {
-      window.clearInterval(cycle);
-    };
-  }, [participants]);
-
-  const decoratedParticipants = useMemo(() => {
-    return participants.map((participant) => {
-      const isActiveSpeaker = participant.id === activeSpeakerId;
-      const displayMuted = participant.isYou ? !micOn : participant.muted;
-      const videoOff = participant.isYou ? !cameraOn : false;
-
-      return {
-        ...participant,
-        muted: displayMuted,
-        videoOff,
-        isActiveSpeaker,
-      };
-    });
-  }, [participants, activeSpeakerId, micOn, cameraOn]);
-
-  const handleToggleMic = () => {
-    setMicOn((prev) => !prev);
-  };
-
-  const handleToggleCamera = () => {
-    setCameraOn((prev) => !prev);
-  };
-
-  const handleShareScreen = () => {
-    setScreenShared((prev) => !prev);
-  };
-
-  const handleEndCall = () => {
+  const handleClose = () => {
     if (meetingWindowId) {
       closeWindow(meetingWindowId);
     }
@@ -101,46 +24,57 @@ export default function TeamsApp() {
 
   return (
     <div className="teams-app">
-      <aside className="teams-app__sidebar" aria-label="Teams navigation">
-        <div className="teams-app__brand">T</div>
-        <div className="teams-app__sidebar-items">
-          {SIDEBAR_ITEMS.map((item) => (
-            <button
-              key={item.id}
-              className={`teams-app__sidebar-btn ${item.id === "teams" ? "teams-app__sidebar-btn--active" : ""}`}
-              title={item.label}
-              aria-label={item.label}
-              type="button"
-            >
-              {item.glyph}
-            </button>
-          ))}
+      <header className="teams-app__topbar">
+        <div>
+          <h2>Live Operations Standup</h2>
+          <p>{loading ? "Loading backend state" : "PostgreSQL metrics and audit activity"}</p>
         </div>
-      </aside>
+        <div className="teams-app__actions">
+          <button type="button" onClick={refresh}><RefreshCw size={15} /> Refresh</button>
+          <button type="button" onClick={handleClose}><X size={15} /> Close</button>
+        </div>
+      </header>
 
       <main className="teams-app__main">
-        <header className="teams-app__topbar">
-          <div className="teams-app__meeting-meta">
-            <h2 className="teams-app__meeting-title">Weekly Product Sync</h2>
-            <p className="teams-app__meeting-status">Live meeting in progress</p>
-          </div>
-          <div className="teams-app__timer" aria-label="Meeting timer">
-            {formatTime(elapsedSeconds)}
-          </div>
-        </header>
+        <section className="teams-app__metrics" aria-label="Live metrics">
+          <article>
+            <span>Stored RFPs</span>
+            <strong>{derived.totalRfps}</strong>
+          </article>
+          <article>
+            <span>Active Sources</span>
+            <strong>{metrics.sources_active || 0}</strong>
+          </article>
+          <article>
+            <span>Reviews</span>
+            <strong>{metrics.reviews_total || 0}</strong>
+          </article>
+        </section>
 
-        <section className="teams-app__stage">
-          <MeetingGrid participants={decoratedParticipants} />
+        <section className="teams-app__columns">
+          <article className="teams-app__panel">
+            <h3>Latest RFP Records</h3>
+            {latestRfps.length === 0 ? (
+              <div className="teams-app__empty">No RFP records are stored yet.</div>
+            ) : latestRfps.map((rfp) => (
+              <div className="teams-app__row" key={rfp.rfp_id}>
+                <strong>{rfp.title || `RFP ${rfp.rfp_id}`}</strong>
+                <span>{rfp.status || "No status"}</span>
+              </div>
+            ))}
+          </article>
 
-          <MeetingControls
-            micOn={micOn}
-            cameraOn={cameraOn}
-            screenShared={screenShared}
-            onToggleMic={handleToggleMic}
-            onToggleCamera={handleToggleCamera}
-            onToggleScreenShare={handleShareScreen}
-            onEndCall={handleEndCall}
-          />
+          <article className="teams-app__panel">
+            <h3>Audit Activity</h3>
+            {latestAudit.length === 0 ? (
+              <div className="teams-app__empty">No audit events are stored yet.</div>
+            ) : latestAudit.map((item) => (
+              <div className="teams-app__row" key={item.log_id}>
+                <strong>{item.action_type || "Event"}</strong>
+                <span>{item.action_detail || `RFP ${item.rfp_id}`}</span>
+              </div>
+            ))}
+          </article>
         </section>
       </main>
     </div>

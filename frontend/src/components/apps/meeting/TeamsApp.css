@@ -1,346 +1,156 @@
 .teams-app {
-  --teams-bg: #1f1f1f;
-  --teams-bg-soft: #272727;
-  --teams-border: rgba(255, 255, 255, 0.08);
-  --teams-text: #f4f5f8;
-  --teams-text-soft: rgba(244, 245, 248, 0.7);
-  --teams-accent: #6f7dff;
-  --teams-danger: #d84848;
-
-  display: grid;
-  grid-template-columns: 72px 1fr;
-  width: 100%;
   height: 100%;
-  background:
-    radial-gradient(circle at 20% 10%, rgba(111, 125, 255, 0.11), transparent 40%),
-    radial-gradient(circle at 85% 100%, rgba(79, 176, 216, 0.1), transparent 38%),
-    var(--teams-bg);
-  color: var(--teams-text);
-  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
-}
-
-.teams-app__sidebar {
-  background: linear-gradient(180deg, #222, #1a1a1a);
-  border-right: 1px solid var(--teams-border);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  padding: 14px 10px;
-}
-
-.teams-app__brand {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  background: linear-gradient(140deg, #6f7dff, #5c65dd);
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-}
-
-.teams-app__sidebar-items {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.teams-app__sidebar-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--teams-text-soft);
-  cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 700;
-  transition: transform 140ms ease, background-color 140ms ease, border-color 140ms ease, color 140ms ease;
-}
-
-.teams-app__sidebar-btn:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--teams-border);
-  color: var(--teams-text);
-}
-
-.teams-app__sidebar-btn--active {
-  background: rgba(111, 125, 255, 0.2);
-  border-color: rgba(111, 125, 255, 0.55);
-  color: #dfe3ff;
-}
-
-.teams-app__main {
   display: grid;
   grid-template-rows: auto 1fr;
-  min-width: 0;
-  min-height: 0;
+  background: #f6f8fb;
+  color: #172033;
+  font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 .teams-app__topbar {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 16px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--teams-border);
-  background: rgba(27, 27, 27, 0.86);
+  padding: 16px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid #dbe3ef;
 }
 
-.teams-app__meeting-title {
+.teams-app__topbar h2 {
   margin: 0;
-  font-size: 1.05rem;
-  letter-spacing: 0.01em;
+  font-size: 18px;
+  font-weight: 800;
 }
 
-.teams-app__meeting-status {
-  margin: 2px 0 0;
-  color: var(--teams-text-soft);
-  font-size: 0.84rem;
+.teams-app__topbar p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 13px;
 }
 
-.teams-app__timer {
-  font-variant-numeric: tabular-nums;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid var(--teams-border);
-  border-radius: 999px;
-  padding: 7px 13px;
-  font-size: 0.9rem;
+.teams-app__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.teams-app__stage {
+.teams-app__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teams-app__main {
   min-height: 0;
+  overflow: auto;
+  padding: 18px;
   display: grid;
-  grid-template-rows: 1fr auto;
-  padding: 14px 16px 18px;
   gap: 14px;
 }
 
-.teams-grid {
+.teams-app__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.teams-app__metrics article,
+.teams-app__panel {
+  background: #ffffff;
+  border: 1px solid #dbe3ef;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+}
+
+.teams-app__metrics article {
+  padding: 14px;
+}
+
+.teams-app__metrics span {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.teams-app__metrics strong {
+  display: block;
+  margin-top: 4px;
+  color: #0f172a;
+  font-size: 26px;
+}
+
+.teams-app__columns {
   min-height: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  align-content: stretch;
-  animation: teams-fade-up 320ms ease;
 }
 
-.participant-tile {
-  position: relative;
-  border-radius: 14px;
-  border: 1px solid var(--teams-border);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
-    var(--teams-bg-soft);
-  min-height: 165px;
+.teams-app__panel {
+  min-width: 0;
+  padding: 14px;
+}
+
+.teams-app__panel h3 {
+  margin: 0 0 12px;
+  color: #172033;
+  font-size: 15px;
+}
+
+.teams-app__row {
   display: grid;
-  place-items: center;
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-  transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-.participant-tile:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.24);
+.teams-app__row:last-child {
+  border-bottom: none;
 }
 
-.participant-tile--active {
-  border-color: rgba(111, 125, 255, 0.8);
-  box-shadow: 0 0 0 1px rgba(111, 125, 255, 0.25), 0 0 30px rgba(111, 125, 255, 0.16);
+.teams-app__row strong {
+  color: #0f172a;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
-.participant-tile--you {
-  border-color: rgba(79, 176, 216, 0.6);
+.teams-app__row span {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
-.participant-tile__avatar {
-  width: 74px;
-  height: 74px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-size: 1.6rem;
+.teams-app__empty {
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #64748b;
+  padding: 18px;
+  text-align: center;
+  font-size: 13px;
   font-weight: 700;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
 }
 
-.participant-tile__footer {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  background: rgba(14, 14, 14, 0.62);
-  backdrop-filter: blur(6px);
-  border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 9px;
-}
-
-.participant-tile__name {
-  font-size: 0.86rem;
-  color: #f2f4fa;
-}
-
-.participant-tile__mic {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: rgba(111, 125, 255, 0.2);
-  color: #ced5ff;
-}
-
-.participant-tile__mic svg {
-  width: 14px;
-  height: 14px;
-}
-
-.participant-tile__mic--muted {
-  background: rgba(216, 72, 72, 0.2);
-  color: #f9c1c1;
-}
-
-.meeting-controls {
-  justify-self: center;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(16, 16, 16, 0.7);
-  border: 1px solid var(--teams-border);
-  border-radius: 999px;
-  padding: 10px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.38);
-}
-
-.meeting-controls__btn {
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #e3e6f4;
-  padding: 8px 12px;
-  min-width: 72px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  transition: transform 130ms ease, background-color 130ms ease, border-color 130ms ease;
-}
-
-.meeting-controls__btn:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.meeting-controls__btn--active {
-  background: rgba(111, 125, 255, 0.23);
-  border-color: rgba(111, 125, 255, 0.56);
-}
-
-.meeting-controls__btn--danger {
-  background: rgba(216, 72, 72, 0.92);
-  border-color: rgba(216, 72, 72, 1);
-  color: #fff;
-}
-
-.meeting-controls__btn--danger:hover {
-  background: #d43c3c;
-  border-color: #d43c3c;
-}
-
-.meeting-controls__icon {
-  width: 16px;
-  height: 16px;
-  display: grid;
-  place-items: center;
-}
-
-.meeting-controls__icon svg {
-  width: 16px;
-  height: 16px;
-}
-
-.meeting-controls__label {
-  font-size: 0.78rem;
-  white-space: nowrap;
-}
-
-@keyframes teams-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (max-width: 950px) {
-  .teams-app {
-    grid-template-columns: 1fr;
-  }
-
-  .teams-app__sidebar {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 10px 12px;
-    gap: 10px;
-  }
-
-  .teams-app__sidebar-items {
-    flex-direction: row;
-  }
-
-  .teams-app__stage {
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .meeting-controls {
-    width: 100%;
-    border-radius: 16px;
-    justify-content: space-between;
-    overflow-x: auto;
-  }
-
-  .meeting-controls__btn {
-    min-width: 86px;
-  }
-}
-
-@media (max-width: 600px) {
+@media (max-width: 780px) {
   .teams-app__topbar {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
   }
 
-  .teams-grid {
-    grid-template-columns: repeat(2, minmax(120px, 1fr));
-    gap: 9px;
-  }
-
-  .participant-tile {
-    min-height: 130px;
-  }
-
-  .participant-tile__avatar {
-    width: 58px;
-    height: 58px;
-    font-size: 1.2rem;
-  }
-
-  .meeting-controls__label {
-    display: none;
+  .teams-app__metrics,
+  .teams-app__columns {
+    grid-template-columns: 1fr;
   }
 }

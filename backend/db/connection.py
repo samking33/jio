@@ -136,6 +136,32 @@ def init_db():
             action_detail TEXT,
             timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS pipeline_runs (
+            run_id SERIAL PRIMARY KEY,
+            status VARCHAR(50) NOT NULL DEFAULT 'pending',
+            current_step_id INT NOT NULL DEFAULT 0,
+            started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            completed_at TIMESTAMP,
+            error_message TEXT
+        );
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS pipeline_step_runs (
+            step_run_id SERIAL PRIMARY KEY,
+            run_id INT NOT NULL REFERENCES pipeline_runs(run_id) ON DELETE CASCADE,
+            step_id INT NOT NULL,
+            step_key VARCHAR(100) NOT NULL,
+            status VARCHAR(50) NOT NULL,
+            message TEXT,
+            error_message TEXT,
+            payload JSONB,
+            started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            completed_at TIMESTAMP,
+            duration_ms INT,
+            UNIQUE (run_id, step_id)
+        );
         """
     ]
 

@@ -59,8 +59,6 @@ export function deriveKPIs(rfps) {
   };
 }
 
-const STAGE_STEPS = ["Fetch Sources", "Send to Agent", "Receive Results", "Store to DB"];
-
 export function useRFPs() {
   const [rfps, setRfps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -106,13 +104,7 @@ export function useRFPs() {
     setPipelineLog([]);
     setPipelineStep(0);
 
-    addLog(`Starting pipeline with ${urls.length || "existing"} source(s)...`, "info");
-
-    for (let i = 0; i < STAGE_STEPS.length; i++) {
-      setPipelineStep(i);
-      addLog(`Step ${i + 1}: ${STAGE_STEPS[i]}`, "step");
-      await new Promise((r) => setTimeout(r, 500));
-    }
+    addLog(`Starting live backend pipeline with ${urls.length || "existing"} source(s)...`, "info");
 
     const { data, error: err } = await api.runPipeline(urls);
 
@@ -143,7 +135,7 @@ export function useRFPs() {
       result: pipelineResult,
       log: pipelineLog,
       step: pipelineStep,
-      stages: STAGE_STEPS,
+      stages: [],
     },
   };
 }

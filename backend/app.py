@@ -17,8 +17,15 @@ from db.queries import (
     insert_hil_review, get_hil_reviews,
     insert_audit_log, get_audit_logs,
     insert_rfp_document, get_rfp_documents,
+    get_platform_metrics,
 )
-from pipeline.pipeline import run_pipeline
+from pipeline.service import (
+    create_new_pipeline_run,
+    execute_pipeline_step,
+    get_latest_pipeline_run_state,
+    get_pipeline_run_state,
+    run_pipeline_legacy,
+)
 
 # ─── App Setup ────────────────────────────────────────────────────────────────
 app = Flask(__name__)
@@ -39,6 +46,11 @@ def home():
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"}), 200
+
+
+@app.route("/metrics", methods=["GET"])
+def metrics():
+    return jsonify(get_platform_metrics()), 200
 
 
 # ─── Pipeline ─────────────────────────────────────────────────────────────────
@@ -63,9 +75,46 @@ def api_run_pipeline():
         )
 
     try:
-        result = run_pipeline()
+        result = run_pipeline_legacy(body)
         status_code = 200 if result["status"] == "success" else 500
         return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/pipeline/runs", methods=["POST"])
+def api_create_pipeline_run():
+    try:
+        run_state = create_new_pipeline_run()
+        return jsonify(run_state), 201
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@app.route("/api/pipeline/runs/latest", methods=["GET"])
+def api_get_latest_pipeline_run():
+    run_state = get_latest_pipeline_run_state()
+    if run_state is None:
+        return jsonify({"status": "error", "message": "No pipeline run found"}), 404
+    return jsonify(run_state), 200
+
+
+@app.route("/api/pipeline/runs/<int:run_id>", methods=["GET"])
+def api_get_pipeline_run(run_id):
+    run_state = get_pipeline_run_state(run_id)
+    if run_state is None:
+        return jsonify({"status": "error", "message": "Pipeline run not found"}), 404
+    return jsonify(run_state), 200
+
+
+@app.route("/api/pipeline/runs/<int:run_id>/steps/<string:step_key>", methods=["POST"])
+def api_execute_pipeline_step(run_id, step_key):
+    body = request.get_json(silent=True) or {}
+    try:
+        run_state = execute_pipeline_step(run_id, step_key, body)
+        return jsonify(run_state), 200
+    except ValueError as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 

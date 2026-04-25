@@ -5,25 +5,21 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background-color: #05080f;
-  color: #e2e8f0;
-  font-family: var(--font-mono, 'DM Mono', monospace);
+  background-color: #eef3f8;
+  color: #172033;
+  font-family: var(--font-sans, 'Inter', sans-serif);
 }
 
-/* Multi-layer background: top glow + corner glow + fine grid */
 .desktop__bg {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-
   background-image:
-    radial-gradient(ellipse 75% 45% at 50% -5%, rgba(32, 178, 170, 0.11) 0%, transparent 68%),
-    radial-gradient(ellipse 35% 28% at 85% 90%, rgba(108, 59, 255, 0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 28% 22% at 12% 85%, rgba(32, 178, 170, 0.04) 0%, transparent 55%),
-    linear-gradient(rgba(32, 178, 170, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(32, 178, 170, 0.028) 1px, transparent 1px);
-  background-size: auto, auto, auto, 36px 36px, 36px 36px;
+    linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(180deg, #f8fafc 0%, #edf3f8 100%);
+  background-size: 44px 44px, 44px 44px, auto;
 }
 
 .desktop__canvas {

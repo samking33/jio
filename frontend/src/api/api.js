@@ -17,7 +17,7 @@
  *   else        { … use data … }
  */
 
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5050";
 
 // ── Generic fetch wrapper ─────────────────────────────────────────────────────
 
@@ -55,6 +55,10 @@ const api = {
    */
   health() {
     return request("/health");
+  },
+
+  getMetrics() {
+    return request("/metrics");
   },
 
   /**

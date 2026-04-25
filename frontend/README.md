@@ -1,108 +1,128 @@
-# RFP Virtual Work OS — Full Stack
+# RFP Discovery Platform
+
+## What ships now
+
+- One React frontend with two entrypoints:
+  - `http://localhost:3000/` for the virtual desktop shell
+  - `http://localhost:3000/pipeline` for the full-screen pipeline dashboard
+- One Flask + Postgres backend on `http://localhost:5000`
+- A persisted 10-step pipeline API that restores the latest run after reloads
 
 ## Architecture
 
+```text
+React SPA (CRA)
+  /                       -> desktop shell
+  /pipeline               -> standalone pipeline dashboard
+  frontend/src/features/pipeline/*
+
+        HTTP / JSON
+
+Flask API
+  GET  /health
+  GET  /sources
+  POST /sources
+  PATCH/DELETE /sources/:id
+  GET/PATCH /rfps/:id
+  POST /run-pipeline                     (legacy wrapper)
+  POST /api/pipeline/runs               (canonical)
+  GET  /api/pipeline/runs/latest        (canonical)
+  GET  /api/pipeline/runs/:run_id       (canonical)
+  POST /api/pipeline/runs/:run_id/steps/:step_key
+
+        psycopg2
+
+PostgreSQL
+  source_urls
+  crawl_runs
+  rfp_listings
+  rfp_documents
+  tasks
+  skills
+  certifications
+  eligibility_assessments
+  risk_register
+  hil_reviews
+  audit_logs
+  pipeline_runs
+  pipeline_step_runs
 ```
-browser  ──────────────────────────────────────────────────────
-           React (port 3000)
-           src/api/api.js          ← single fetch wrapper
-           src/hooks/useRFPs.js    ← shared GET /rfps + POST /run-pipeline
-           src/hooks/useBackendStatus.js  ← health-check polling
 
-           ↕  HTTP  (CORS enabled)
+## Local setup
 
-Flask    (port 5000)
-           GET  /health
-           GET  /rfps
-           POST /run-pipeline
+### Backend
 
-           ↕  psycopg2
-
-PostgreSQL (port 5432)
-           tables: sources, rfp_outputs
+```bash
+cd backend
+cp .env.example .env
+pip install -r requirements.txt
+python app.py
 ```
 
----
+### Frontend
 
-## Quick start
+```bash
+cd frontend
+npm install
+npm start
+```
 
-### 1. Database
+### Database
+
+Create `rfp_db` first if you are using local Postgres:
 
 ```bash
 psql -U postgres -c "CREATE DATABASE rfp_db;"
 ```
 
-Tables are created automatically on first Flask startup via `init_db()`.
+Tables are created automatically on backend startup.
 
-### 2. Backend
+## Key environment values
+
+### `backend/.env`
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=rfp_db
+DB_USER=postgres
+DB_PASSWORD=password
+DB_SSLMODE=prefer
+FLASK_HOST=0.0.0.0
+FLASK_PORT=5000
+FLASK_DEBUG=false
+```
+
+### `frontend/.env`
+
+```env
+REACT_APP_API_URL=http://localhost:5000
+```
+
+## Canonical pipeline flow
+
+1. `POST /api/pipeline/runs`
+2. `POST /api/pipeline/runs/:run_id/steps/crawl`
+3. `POST /api/pipeline/runs/:run_id/steps/filter`
+4. `POST /api/pipeline/runs/:run_id/steps/download`
+5. `POST /api/pipeline/runs/:run_id/steps/extract`
+6. `POST /api/pipeline/runs/:run_id/steps/certs`
+7. `POST /api/pipeline/runs/:run_id/steps/risk`
+8. `POST /api/pipeline/runs/:run_id/steps/convert`
+9. `POST /api/pipeline/runs/:run_id/steps/hil`
+10. `POST /api/pipeline/runs/:run_id/steps/forward`
+11. `POST /api/pipeline/runs/:run_id/steps/log`
+
+Use `GET /api/pipeline/runs/latest` to restore the most recent run state after refresh.
+
+## Verification commands
 
 ```bash
 cd backend
-cp .env.example .env          # edit credentials
-pip install -r requirements.txt
-python app.py
-# → http://localhost:5000
+pytest
 ```
-
-Verify: `curl http://localhost:5000/health`  → `{"status":"ok"}`
-
-### 3. Frontend
 
 ```bash
 cd frontend
-# .env already has REACT_APP_API_URL=http://localhost:5000
-npm install
-npm start
-# → http://localhost:3000
+npm run build
 ```
-
----
-
-## API reference
-
-| Method | Path            | Body                        | Response                            |
-|--------|-----------------|-----------------------------|-------------------------------------|
-| GET    | `/health`       | —                           | `{ status: "ok" }`                  |
-| GET    | `/rfps`         | —                           | `RFPRecord[]`                       |
-| POST   | `/run-pipeline` | `{ urls?: string[] }`       | `{ status, sources_count, processed, message }` |
-
-### RFPRecord shape
-```json
-{
-  "id": 1,
-  "rfp_id": "rfp-a3f9c12b",
-  "source_url": "https://sam.gov/rfp/001",
-  "output_json": {
-    "rfp_id": "rfp-a3f9c12b",
-    "source_url": "https://sam.gov/rfp/001",
-    "result": "processed",
-    "summary": "Mock summary for ...",
-    "score": 0.88
-  },
-  "created_at": "2024-01-15T10:23:44"
-}
-```
-
----
-
-## Integration layer files
-
-| File | Purpose |
-|------|---------|
-| `frontend/src/api/api.js` | Fetch wrapper — all backend calls go here |
-| `frontend/src/hooks/useRFPs.js` | Shared state: rfps, kpis, triggerPipeline |
-| `frontend/src/hooks/useBackendStatus.js` | Polls `/health` every 15 s |
-| `frontend/.env` | `REACT_APP_API_URL` env var |
-| `backend/.env.example` | DB + Flask config template |
-
----
-
-## Component → API mapping
-
-| Component | API calls |
-|-----------|-----------|
-| `RFPDashboard` | `GET /rfps` (on mount + after pipeline), `POST /run-pipeline` (header button) |
-| `PipelineRunner` | Same shared hook — always in sync with Dashboard |
-| `StatusBar` | `GET /health` every 15 s → online/offline dot |
-| `SourceManager` | Local state only (no backend endpoint yet) |
-| `MeetingRoom` | Local state only |
